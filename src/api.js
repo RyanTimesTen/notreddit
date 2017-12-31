@@ -2,7 +2,6 @@ import fetch from 'node-fetch'
 import qs from 'qs'
 
 const REDDIT_API_URL = 'https://oauth.reddit.com'
-const REDDIT_URL = 'https://reddit.com'
 
 let get = (url, params, token) => {
   if (params) {
@@ -10,11 +9,8 @@ let get = (url, params, token) => {
   }
 
   const options = {
-    method: 'GET'
-  }
-
-  if (token) {
-    options.headers = {
+    method: 'GET',
+    headers: {
       'Authorization': `bearer ${token}`
     }
   }
