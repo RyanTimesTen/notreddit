@@ -183,14 +183,18 @@ const PostType = new GraphQLObjectType({
   }
 })
 
-const createPostListField = type => {
+const createPostListField = () => {
   return {
     type: new GraphQLNonNull(new GraphQLList(PostType)),
-    description: `${type.charAt(0).toUpperCase() + type.slice(1)} posts`,
+    description: 'Reddit posts',
     args: {
       token: {
         type: new GraphQLNonNull(GraphQLString),
         description: 'The OAuth token for user-specific data.'
+      },
+      type: {
+        type: new GraphQLNonNull(GraphQLString),
+        description: 'The type of post (hot, new rising).'
       },
       limit: {
         type: GraphQLInt,
@@ -198,8 +202,10 @@ const createPostListField = type => {
       }
     },
     resolve: (root, args) => {
+      const type = args.type
       const token = args.token
       delete args.token
+      delete args.type
       return getPosts(type, token, args).then(data => data.data.children)
     }
   }
@@ -223,9 +229,7 @@ const RedditType = new GraphQLObjectType({
       },
       resolve: (root, { token, username }) => getUser(username, token)
     },
-    hotPosts: createPostListField('hot'),
-    newPosts: createPostListField('new'),
-    risingPosts: createPostListField('rising')
+    posts: createPostListField()
   }
 })
 
