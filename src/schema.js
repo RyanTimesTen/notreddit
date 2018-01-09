@@ -156,7 +156,7 @@ const PostType = new GraphQLObjectType({
       resolve: post => post.data.created_utc
     },
     createdISO: {
-      type: new GraphQLNonNull(GraphQLFloat),
+      type: new GraphQLNonNull(GraphQLString),
       description: 'The time the post was created (ISO8601).',
       resolve: post => new Date(post.data.created_utc * 1000).toISOString()
     },
