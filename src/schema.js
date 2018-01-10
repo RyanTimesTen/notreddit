@@ -95,6 +95,28 @@ const CommentType = new GraphQLObjectType({
   }
 })
 
+const ResolutionType = new GraphQLObjectType({
+  name: 'Resolution',
+  description: 'The different image resolutions on a post.',
+  fields: {
+    url: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The image url.',
+      resolve: resolution => resolution.url
+    },
+    width: {
+      type: new GraphQLNonNull(GraphQLInt),
+      description: 'The image width.',
+      resolve: resolution => resolution.width
+    },
+    height: {
+      type: new GraphQLNonNull(GraphQLInt),
+      description: 'The image height.',
+      resolve: resolution => resolution.height
+    }
+  }
+})
+
 const PostType = new GraphQLObjectType({
   name: 'Post',
   description: 'A Reddit post.',
@@ -159,6 +181,14 @@ const PostType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString),
       description: 'The time the post was created (ISO8601).',
       resolve: post => new Date(post.data.created_utc * 1000).toISOString()
+    },
+    resolutions: {
+      type: new GraphQLList(ResolutionType),
+      description: 'The image resolutions (if post is an image).',
+      resolve: post => {
+        if (!post.data.preview) return null
+        return post.data.preview.images[0].resolutions
+      }
     },
     subreddit: {
       type: new GraphQLNonNull(GraphQLString),
