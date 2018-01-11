@@ -95,8 +95,8 @@ const CommentType = new GraphQLObjectType({
   }
 })
 
-const ResolutionType = new GraphQLObjectType({
-  name: 'Resolution',
+const ImageType = new GraphQLObjectType({
+  name: 'Image',
   description: 'The different image resolutions on a post.',
   fields: {
     url: {
@@ -157,6 +157,27 @@ const PostType = new GraphQLObjectType({
       description: 'The post id.',
       resolve: post => post.data.id
     },
+    images: {
+      type: new GraphQLList(ImageType),
+      description: 'The image resolutions (if post is an image).',
+      resolve: post => {
+        if (!post.data.preview) return null
+        const images = post.data.preview.images[0]
+        /**
+         * This looks weird because Reddit API returns these images in two
+         * different objects within the first element of the images array.
+         *
+         * It forms an array whose first element is the single object in source
+         * and the second element is an array of the rest of the images in the
+         * resolutions object. It then essentially flat maps it so they're all
+         * in one array to pass to the ImageType object.
+         *
+         * https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays-in-javascript
+         */
+        const imageObjects = Array(images.source, Array.from(images.resolutions))
+        return Array.concat.apply(Array, imageObjects)
+      }
+    },
     numComments: {
       type: new GraphQLNonNull(GraphQLInt),
       description: 'The number of comments on the post.',
@@ -182,12 +203,12 @@ const PostType = new GraphQLObjectType({
       description: 'The time the post was created (ISO8601).',
       resolve: post => new Date(post.data.created_utc * 1000).toISOString()
     },
-    resolutions: {
-      type: new GraphQLList(ResolutionType),
-      description: 'The image resolutions (if post is an image).',
+    gifUrl: {
+      type: GraphQLString,
+      description: 'The gif url (if a gif was posted).',
       resolve: post => {
-        if (!post.data.preview) return null
-        return post.data.preview.images[0].resolutions
+        if (!post.data.secure_media_embed) return null
+        return post.data.secure_media_embed.media_domain_url
       }
     },
     subreddit: {
