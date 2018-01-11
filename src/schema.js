@@ -163,19 +163,7 @@ const PostType = new GraphQLObjectType({
       resolve: post => {
         if (!post.data.preview) return null
         const images = post.data.preview.images[0]
-        /**
-         * This looks weird because Reddit API returns these images in two
-         * different objects within the first element of the images array.
-         *
-         * It forms an array whose first element is the single object in source
-         * and the second element is an array of the rest of the images in the
-         * resolutions object. It then essentially flat maps it so they're all
-         * in one array to pass to the ImageType object.
-         *
-         * https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays-in-javascript
-         */
-        const imageObjects = Array(images.source, Array.from(images.resolutions))
-        return Array.concat.apply(Array, imageObjects)
+        return Array(images.source, ...images.resolutions)
       }
     },
     numComments: {
