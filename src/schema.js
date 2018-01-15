@@ -131,6 +131,16 @@ const PostType = new GraphQLObjectType({
       description: 'The post body.',
       resolve: post => post.data.selftext
     },
+    created: {
+      type: new GraphQLNonNull(GraphQLFloat),
+      description: 'The time the post was created (UTC).',
+      resolve: post => post.data.created_utc
+    },
+    createdISO: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The time the post was created (ISO8601).',
+      resolve: post => new Date(post.data.created_utc * 1000).toISOString()
+    },
     // TODO: Figure out how to get token from root query (post)
     // comments: {
     //   type: GraphQLList(CommentType),
@@ -166,6 +176,11 @@ const PostType = new GraphQLObjectType({
         return Array(images.source, ...images.resolutions)
       }
     },
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The fullname of the post.',
+      resolve: post => post.data.name
+    },
     numComments: {
       type: new GraphQLNonNull(GraphQLInt),
       description: 'The number of comments on the post.',
@@ -180,16 +195,6 @@ const PostType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLInt),
       description: 'The post score.',
       resolve: post => post.data.score
-    },
-    created: {
-      type: new GraphQLNonNull(GraphQLFloat),
-      description: 'The time the post was created (UTC).',
-      resolve: post => post.data.created_utc
-    },
-    createdISO: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'The time the post was created (ISO8601).',
-      resolve: post => new Date(post.data.created_utc * 1000).toISOString()
     },
     gifUrl: {
       type: GraphQLString,
@@ -234,6 +239,14 @@ const createPostListField = () => {
       type: {
         type: new GraphQLNonNull(GraphQLString),
         description: 'The type of post (hot, new rising).'
+      },
+      after: {
+        type: GraphQLString,
+        description: 'The fullname of an item to search after.'
+      },
+      before: {
+        type: GraphQLString,
+        description: 'The fullname of an item to search before.'
       },
       limit: {
         type: GraphQLInt,
