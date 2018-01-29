@@ -229,10 +229,6 @@ const createPostListField = () => ({
   type: new GraphQLNonNull(new GraphQLList(PostType)),
   description: 'Reddit posts',
   args: {
-    token: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'The OAuth token for user-specific data.',
-    },
     type: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'The type of post (hot, new rising).',
@@ -250,8 +246,8 @@ const createPostListField = () => ({
       description: 'The maximum number of posts to return.',
     },
   },
-  resolve: (root, args) => {
-    const { type, token, ...params } = args;
+  resolve: (root, args, { token }) => {
+    const { type, ...params } = args;
     return getPosts(type, token, params).then(data => data.data.children);
   },
 });
@@ -263,16 +259,12 @@ const RedditType = new GraphQLObjectType({
     user: {
       type: UserType,
       args: {
-        token: {
-          type: new GraphQLNonNull(GraphQLString),
-          description: 'The OAuth token for user-specific data.',
-        },
         username: {
           type: new GraphQLNonNull(GraphQLString),
           description: 'Username of the user.',
         },
       },
-      resolve: (root, { token, username }) => getUser(username, token),
+      resolve: (root, { username }, { token }) => getUser(username, token),
     },
     posts: createPostListField(),
   }),
