@@ -225,33 +225,6 @@ const PostType = new GraphQLObjectType({
   }),
 });
 
-const createPostListField = () => ({
-  type: new GraphQLNonNull(new GraphQLList(PostType)),
-  description: 'Reddit posts',
-  args: {
-    type: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'The type of post (hot, new rising).',
-    },
-    after: {
-      type: GraphQLString,
-      description: 'The fullname of an item to search after.',
-    },
-    before: {
-      type: GraphQLString,
-      description: 'The fullname of an item to search before.',
-    },
-    limit: {
-      type: GraphQLInt,
-      description: 'The maximum number of posts to return.',
-    },
-  },
-  resolve: (root, args, { token }) => {
-    const { type, ...params } = args;
-    return getPosts(type, token, params).then(data => data.data.children);
-  },
-});
-
 const RedditType = new GraphQLObjectType({
   name: 'Reddit',
   description: 'The Reddit API',
@@ -266,7 +239,30 @@ const RedditType = new GraphQLObjectType({
       },
       resolve: (root, { username }, { token }) => getUser(username, token),
     },
-    posts: createPostListField(),
+    posts: {
+      type: new GraphQLNonNull(new GraphQLList(PostType)),
+      description: 'Reddit posts',
+      args: {
+        type: {
+          type: new GraphQLNonNull(GraphQLString),
+          description: 'The type of post (hot, new rising).',
+        },
+        after: {
+          type: GraphQLString,
+          description: 'The fullname of an item to search after.',
+        },
+        before: {
+          type: GraphQLString,
+          description: 'The fullname of an item to search before.',
+        },
+        limit: {
+          type: GraphQLInt,
+          description: 'The maximum number of posts to return.',
+        },
+      },
+      resolve: (root, { type, ...params }, { token }) =>
+        getPosts(type, token, params).then(data => data.data.children),
+    },
   }),
 });
 
