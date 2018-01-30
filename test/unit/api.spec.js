@@ -1,8 +1,8 @@
-const { expect } = require('chai');
-const nock = require('nock');
+import { expect } from 'chai';
+import nock from 'nock';
 
-const { getUser } = require('../../src/api');
-const response = require('../recordings/user.json');
+import { getUser } from '../../src/api';
+import response from '../recordings/user.json';
 
 describe('Get User Tests', () => {
   beforeEach(() => {
