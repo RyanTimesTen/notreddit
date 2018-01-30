@@ -9,6 +9,7 @@ import {
 } from 'graphql';
 
 import {
+  getComments,
   getPosts,
   getUser,
 } from './api';
@@ -49,7 +50,7 @@ const UserType = new GraphQLObjectType({
     },
   }),
 });
-/*
+
 const CommentType = new GraphQLObjectType({
   name: 'Comment',
   description: 'A comment on a post.',
@@ -57,42 +58,46 @@ const CommentType = new GraphQLObjectType({
     author: {
       type: GraphQLString,
       description: 'The comment author.',
-      resolve: comment => comment.data.author
+      resolve: comment => comment.data.author,
     },
     body: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'The comment body.',
-      resolve: comment => comment.data.body
+      resolve: comment => comment.data.body,
     },
     id: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'The id of the post commented on.',
-      resolve: comment => comment.link_id
+      resolve: comment => comment.data.id,
     },
-    // TODO: Need to figure out how to get the token from root query
     replies: {
-      type: GraphQLList(CommentType),
+      type: new GraphQLList(CommentType),
       description: 'The comment replies.',
       args: {
         depth: {
           type: GraphQLInt,
-          description: 'Maximum depth of subtrees in the thread'
+          description: 'Maximum depth of subtrees in the thread',
         },
         limit: {
           type: GraphQLInt,
-          description: 'Maximum number of comments to return'
-        }
+          description: 'Maximum number of comments to return',
+        },
       },
-      resolve: (comment, args) => {
-        const token = comment.token
-        const post = comment.linkId.slice(3)
-        requestParams.comment = comment.id
-        return getComments(post, token, requestParams).then(data => data[1].data.children)
-      }
-    }
-  })
-})
-*/
+      resolve: (comment) => {
+        if (!comment.data.replies || comment.data.replies === '') {
+          return null;
+        }
+        const { children } = comment.data.replies.data;
+        if (children.length > 0 &&
+            children[children.length - 1].kind === 'more') {
+          return children.slice(0, -1);
+        }
+        return children;
+      },
+    },
+  }),
+});
+
 const ImageType = new GraphQLObjectType({
   name: 'Image',
   description: 'The different image resolutions on a post.',
@@ -139,27 +144,25 @@ const PostType = new GraphQLObjectType({
       description: 'The time the post was created (ISO8601).',
       resolve: post => new Date(post.data.created_utc * 1000).toISOString(),
     },
-    // TODO: Figure out how to get token from root query (post)
-    // comments: {
-    //   type: GraphQLList(CommentType),
-    //   description: 'The comments on the post.',
-    //   args: {
-    //     depth: {
-    //       type: GraphQLInt,
-    //       description : 'Maximum depth of subtrees in the thread.'
-    //     },
-    //     limit: {
-    //       type: GraphQLInt,
-    //       description: 'Maximum number of comments to return.'
-    //     }
-    //   },
-    //   resolve: (post, args) => {
-    //     const post = post.data.id
-    //     const token = post.token
-    //     const requestParams = args
-    //     return getComments(post, token, requestParams).then(data => data[1].data.children)
-    //   }
-    // },
+    comments: {
+      type: new GraphQLList(CommentType),
+      description: 'The comments on the post.',
+      args: {
+        depth: {
+          type: GraphQLInt,
+          description: 'Maximum depth of subtrees in the thread.',
+        },
+        limit: {
+          type: GraphQLInt,
+          description: 'Maximum number of comments to return.',
+        },
+      },
+      resolve: (post, args, { token }) => {
+        const postId = post.data.id;
+        return getComments(postId, token, args)
+          .then(data => data[1].data.children.slice(0, -1));
+      },
+    },
     id: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'The post id.',
