@@ -9,7 +9,7 @@
     "dev": "nodemon --exec 'npm run lint && babel-node index.js'",
     "start": "npm run dev",
     "build": "babel src -o build/build.js",
-    "test:unit": "mocha --compilers js:babel-core/register test/unit/*.spec.js"
+    "test:unit": "mocha --require babel-core/register test/unit/*.spec.js"
   },
   "keywords": [],
   "author": "Ryan Gilbert <ryangilbert7926@gmail.com>",
