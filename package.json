@@ -4,15 +4,20 @@
   "description": "A GraphQL wrapper of the official Reddit API",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --ext .js index.js src",
+    "lint": "eslint --ext .js index.js src test",
+    "lint:fix": "eslint --ext .js index.js src test --fix",
     "dev": "nodemon --exec 'npm run lint && babel-node index.js'",
     "start": "npm run dev",
-    "build": "babel src -o build/build.js"
+    "build": "babel src -o build/build.js",
+    "test:unit": "mocha --compilers js:babel-core/register test/unit/*.spec.js"
   },
   "keywords": [],
   "author": "Ryan Gilbert <ryangilbert7926@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "D": "^1.0.0",
+    "babel-preset-latest": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",
     "graphql": "^0.12.3",
@@ -25,11 +30,15 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
-    "babel-watch": "^2.0.7",
+    "chai": "^4.1.2",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-watch": "^3.1.3",
-    "nodemon": "^1.14.11"
+    "mocha": "^5.0.0",
+    "nock": "^9.1.6",
+    "nodemon": "^1.14.11",
+    "sinon": "^4.2.2",
+    "sinon-chai": "^2.14.0"
   }
 }
