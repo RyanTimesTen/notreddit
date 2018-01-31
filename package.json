@@ -8,7 +8,9 @@
     "lint:fix": "eslint --ext .js index.js src test --fix",
     "dev": "nodemon --exec 'npm run lint && babel-node index.js'",
     "start": "npm run dev",
-    "build": "babel src -o build/build.js",
+    "build": "npm run build:clean && npm run build:npm",
+    "build:clean": "rm -rf ./dist && mkdir ./dist",
+    "build:npm": "babel src -d dist",
     "test:unit": "nyc mocha --require babel-core/register test/unit/*.spec.js",
     "test": "npm run test:unit",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
