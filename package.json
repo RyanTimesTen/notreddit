@@ -10,7 +10,8 @@
     "start": "npm run dev",
     "build": "babel src -o build/build.js",
     "test:unit": "nyc mocha --require babel-core/register test/unit/*.spec.js",
-    "test": "npm run test:unit"
+    "test": "npm run test:unit",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [],
   "author": "Ryan Gilbert <ryangilbert7926@gmail.com>",
