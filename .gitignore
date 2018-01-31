@@ -60,6 +60,8 @@ build/
 modules.xml
 *.ipr
 
+# Test coverage output
+.nyc_output
 
 ### System Files ###
 .DS_Store
