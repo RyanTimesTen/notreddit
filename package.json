@@ -15,9 +15,6 @@
   "author": "Ryan Gilbert <ryangilbert7926@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "D": "^1.0.0",
-    "babel-preset-latest": "^6.24.1",
-    "babel-preset-stage-3": "^6.24.1",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",
     "graphql": "^0.12.3",
