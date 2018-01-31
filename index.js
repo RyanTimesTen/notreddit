@@ -7,10 +7,10 @@ const app = express();
 app.use('/graphql', graphqlHTTP(() => ({
   schema,
   graphiql: true,
-  context: { token: process.env.REDDIT_TOKEN }
+  context: { token: process.env.REDDIT_TOKEN },
 })));
 
 const port = 8080;
 app.listen(port, () => {
-  console.log(`Listening on http://localhost:${port}`); // eslint-disable-line
+  console.log(`Listening on http://localhost:${port}`);
 });
