@@ -15,12 +15,12 @@ const get = (url, params, token) => {
     .then(res => res.json());
 };
 
-export const getPosts = (type, token, params = {}) => {
+export const getPosts = (type, token, params = null) => {
   const url = `${REDDIT_API_URL}/${type}`;
   return get(url, params, token);
 };
 
-export const getComments = (post, token, params = {}) => {
+export const getComments = (post, token, params = null) => {
   const url = `${REDDIT_API_URL}/comments/${post}`;
   return get(url, params, token);
 };
