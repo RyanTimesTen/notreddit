@@ -4,5 +4,9 @@
     "env": {
         "node": true,
         "es6": true
+    },
+    "rules": {
+        "arrow-parens": 0,
+        "function-paren-newline": 0
     }
 }
