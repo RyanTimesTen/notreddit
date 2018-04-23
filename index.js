@@ -4,11 +4,14 @@ import graphqlHTTP from 'express-graphql';
 import schema from './src/schema';
 
 const app = express();
-app.use('/graphql', graphqlHTTP(() => ({
-  schema,
-  graphiql: true,
-  context: { token: process.env.REDDIT_TOKEN },
-})));
+app.use(
+  '/graphql',
+  graphqlHTTP(req => ({
+    schema,
+    graphiql: true,
+    context: { token: req.header('token') },
+  })),
+);
 
 const port = 8080;
 app.listen(port, () => {
