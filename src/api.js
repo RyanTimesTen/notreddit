@@ -24,7 +24,9 @@ export const getPosts = (type, token, params = null) =>
     .catch(err => console.log(err)); // TODO: Do some real logging
 
 export const getComments = (post, token, params = null) =>
-  get(`${REDDIT_API_URL}/comments/${post}`, params, token);
+  get(`${REDDIT_API_URL}/comments/${post}`, params, token).then(data =>
+    data[1].data.children.slice(0, -1).map(comment => comment.data),
+  );
 
 export const getUser = (username, token) =>
   get(`${REDDIT_API_URL}/user/${username}/about`, null, token).then(
