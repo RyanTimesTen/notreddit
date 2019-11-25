@@ -1,6 +1,52 @@
-import { getComments, getPosts, getUser } from '../api';
+const { gql } = require('apollo-server-express');
+const { getComments, getPosts, getUser } = require('./api');
 
-export default {
+const typeDefs = gql`
+  type User {
+    id: ID!
+    username: String!
+    created: Float!
+    commentKarma: Int!
+    linkKarma: Int!
+  }
+
+  type Comment {
+    id: ID!
+    author: String!
+    body: String!
+    replies: [Comment!]
+  }
+
+  type Image {
+    url: String!
+    width: Int!
+    height: Int!
+  }
+
+  type Post {
+    id: ID!
+    author: String!
+    body: String
+    type: String
+    score: Int!
+    created: Float!
+    comments(depth: Int, limit: Int): [Comment!]
+    numComments: Int!
+    images: [Image!]
+    gif: String
+    subreddit: String!
+    thumbnail: String!
+    title: String!
+    url: String
+  }
+
+  type Query {
+    user(username: String!): User!
+    posts(type: String!, after: String, before: String, limit: Int): [Post!]
+  }
+`;
+
+const resolvers = {
   Query: {
     user: (_, { username }, { token }) => getUser(username, token),
     posts: (_, { type, ...params }, { token }) => getPosts(type, token, params),
@@ -31,3 +77,5 @@ export default {
     created: user => user.created_utc,
   },
 };
+
+module.exports = { typeDefs, resolvers };

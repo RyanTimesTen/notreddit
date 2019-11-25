@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
-import qs from 'qs';
+const fetch = require('node-fetch');
+const qs = require('qs');
 
 const REDDIT_API_URL = 'https://oauth.reddit.com';
 
@@ -18,17 +18,23 @@ const get = (url, params, token) =>
     },
   }).then(res => res.json());
 
-export const getPosts = (type, token, params = null) =>
+const getPosts = (type, token, params = null) =>
   get(`${REDDIT_API_URL}/${type}`, params, token)
     .then(res => res.data.children.map(post => post.data))
     .catch(err => console.log(err)); // TODO: Do some real logging
 
-export const getComments = (post, token, params = null) =>
+const getComments = (post, token, params = null) =>
   get(`${REDDIT_API_URL}/comments/${post}`, params, token).then(data =>
-    data[1].data.children.slice(0, -1).map(comment => comment.data),
+    data[1].data.children.slice(0, -1).map(comment => comment.data)
   );
 
-export const getUser = (username, token) =>
+const getUser = (username, token) =>
   get(`${REDDIT_API_URL}/user/${username}/about`, null, token).then(
-    res => res.data,
+    res => res.data
   );
+
+module.exports = {
+  getPosts,
+  getComments,
+  getUser,
+};
