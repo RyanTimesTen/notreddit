@@ -1,5 +1,4 @@
 const { gql } = require('apollo-server-express');
-const { getComments, getPosts, getUser } = require('./api');
 
 const typeDefs = gql`
   type User {
@@ -48,14 +47,14 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    user: (_, { username }, { token }) => getUser(username, token),
-    posts: (_, { type, ...params }, { token }) => getPosts(type, token, params),
+    user: (_, { username }, { api }) => api.getUser(username),
+    posts: (_, { type, ...params }, { api }) => api.getPosts(type, params),
   },
   Post: {
     body: post => post.selftext,
     type: post => post.post_hint,
     created: post => post.created_utc,
-    comments: (post, args, { token }) => getComments(post.id, token, args),
+    comments: (post, args, { api }) => api.getComments(post.id, args),
     numComments: post => post.num_comments,
     images(post) {
       if (!post.preview) return null;

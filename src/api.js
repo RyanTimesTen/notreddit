@@ -1,40 +1,31 @@
-const fetch = require('node-fetch');
 const qs = require('qs');
 
 const REDDIT_API_URL = 'https://oauth.reddit.com';
 
-/**
- * Generic function to hit a Reddit API endpoint with options and auth
- *
- * @param {string} endpoint The Reddit API endpoint to hit
- * @param {object} params The options to pass to the Reddit API endpoint
- * @param {string} token Reddit OAuth token
- */
-const get = (url, params, token) =>
-  fetch(params ? `${url}?${qs.stringify(params)}` : url, {
-    method: 'GET',
-    headers: {
-      Authorization: `bearer ${token}`,
-    },
-  }).then(res => res.json());
+const createApi = fetch => ({
+  get(url, params) {
+    return fetch(params ? `${url}?${qs.stringify(params)}` : url, {
+      method: 'GET',
+    }).then(res => res.json());
+  },
 
-const getPosts = (type, token, params = null) =>
-  get(`${REDDIT_API_URL}/${type}`, params, token)
-    .then(res => res.data.children.map(post => post.data))
-    .catch(err => console.log(err)); // TODO: Do some real logging
+  getPosts(type, params = null) {
+    return this.get(`${REDDIT_API_URL}/${type}`, params)
+      .then(res => res.data.children.map(post => post.data))
+      .catch(err => console.log(err));
+  },
 
-const getComments = (post, token, params = null) =>
-  get(`${REDDIT_API_URL}/comments/${post}`, params, token).then(data =>
-    data[1].data.children.slice(0, -1).map(comment => comment.data)
-  );
+  getComments(post, params = null) {
+    return this.get(`${REDDIT_API_URL}/comments/${post}`, params).then(data =>
+      data[1].data.children.slice(0, -1).map(comment => comment.data)
+    );
+  },
 
-const getUser = (username, token) =>
-  get(`${REDDIT_API_URL}/user/${username}/about`, null, token).then(
-    res => res.data
-  );
+  getUser(username) {
+    return this.get(`${REDDIT_API_URL}/user/${username}/about`, null).then(
+      res => res.data
+    );
+  },
+});
 
-module.exports = {
-  getPosts,
-  getComments,
-  getUser,
-};
+module.exports = { createApi };
