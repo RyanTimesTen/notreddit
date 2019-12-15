@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 const server = new ApolloServer({
   typeDefs: schema.typeDefs,
   resolvers: schema.resolvers,
+  context: ({ req }) => ({
+    token: req.header('authorization').split('Bearer')[1],
+  }),
   cors: true,
   tracing: DEV,
   introspection: DEV,
@@ -21,8 +24,8 @@ const server = new ApolloServer({
 });
 
 const app = express();
-const http = createServer(app);
 
 server.applyMiddleware({ app });
 
+const http = createServer(app);
 http.listen(PORT);
