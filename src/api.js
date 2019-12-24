@@ -1,31 +1,84 @@
+const fetch = require('node-fetch');
 const qs = require('qs');
 
-const REDDIT_API_URL = 'https://oauth.reddit.com';
+class Api {
+  constructor({ baseUrl } = {}) {
+    this.baseUrl = baseUrl || 'https://oauth.reddit.com';
+    this.token = null;
+  }
 
-const createApi = fetch => ({
-  get(url, params) {
-    return fetch(params ? `${url}?${qs.stringify(params)}` : url, {
+  setAuth(token) {
+    this.token = token;
+  }
+
+  getFetchOptions() {
+    return {
       method: 'GET',
-    }).then(res => res.json());
-  },
+      headers: {
+        authorization: `Bearer ${this.token}`,
+      },
+    };
+  }
 
-  getPosts(type, params = null) {
-    return this.get(`${REDDIT_API_URL}/${type}`, params)
-      .then(res => res.data.children.map(post => post.data))
-      .catch(err => console.log(err));
-  },
+  async get(url, params) {
+    const fetchOptions = this.getFetchOptions();
 
-  getComments(post, params = null) {
-    return this.get(`${REDDIT_API_URL}/comments/${post}`, params).then(data =>
-      data[1].data.children.slice(0, -1).map(comment => comment.data)
-    );
-  },
+    try {
+      const response = await fetch(
+        params ? `${url}?${qs.stringify(params)}` : url,
+        fetchOptions
+      );
 
-  getUser(username) {
-    return this.get(`${REDDIT_API_URL}/user/${username}/about`, null).then(
-      res => res.data
-    );
-  },
-});
+      if (response.status === 401) {
+        throw new Error(response.statusText);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.log(`Failed to fetch: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getPosts(type, params = null) {
+    try {
+      const response = await this.get(`${this.baseUrl}/${type}`, params);
+      return response.data.children.map(post => post.data);
+    } catch (error) {
+      console.log(`Failed to fetch posts: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getComments(post, params = null) {
+    try {
+      const response = await this.get(
+        `${this.baseUrl}/comments/${post}`,
+        params
+      );
+      return response[1].data.children
+        .slice(0, -1)
+        .map(comment => comment.data);
+    } catch (error) {
+      console.log(`Failed to fetch comments: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getUser(username) {
+    try {
+      const response = await this.get(
+        `${this.baseUrl}/user/${username}/about`,
+        null
+      );
+      return response.data;
+    } catch (error) {
+      console.log(`Failed to fetch user ${username}: ${error.message}`);
+      throw error;
+    }
+  }
+}
+
+const createApi = () => new Api();
 
 module.exports = { createApi };
