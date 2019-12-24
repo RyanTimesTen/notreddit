@@ -40,9 +40,9 @@ class Api {
     }
   }
 
-  async getPosts(type, params = null) {
+  async getPosts(listing, params = null) {
     try {
-      const response = await this.get(`/${type}`, params);
+      const response = await this.get(`/${listing}`, params);
       return response.data.children.map(post => post.data);
     } catch (error) {
       console.log(`Failed to fetch posts: ${error.message}`);

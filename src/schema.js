@@ -39,16 +39,26 @@ const typeDefs = gql`
     url: String
   }
 
+  enum Listing {
+    best
+    hot
+    new
+    random
+    rising
+    top
+  }
+
   type Query {
     user(username: String!): User!
-    posts(type: String!, after: String, before: String, limit: Int): [Post!]
+    posts(listing: Listing!, after: String, before: String, limit: Int): [Post!]
   }
 `;
 
 const resolvers = {
   Query: {
     user: (_, { username }, { api }) => api.getUser(username),
-    posts: (_, { type, ...params }, { api }) => api.getPosts(type, params),
+    posts: (_, { listing, ...params }, { api }) =>
+      api.getPosts(listing, params),
   },
   Post: {
     body: post => post.selftext,
