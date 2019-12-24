@@ -20,12 +20,12 @@ class Api {
     };
   }
 
-  async get(url, params) {
+  async get(endpoint, params) {
     const fetchOptions = this.getFetchOptions();
 
     try {
       const response = await fetch(
-        params ? `${url}?${qs.stringify(params)}` : url,
+        params ? `${this.baseUrl}${endpoint}?${qs.stringify(params)}` : url,
         fetchOptions
       );
 
@@ -42,7 +42,7 @@ class Api {
 
   async getPosts(type, params = null) {
     try {
-      const response = await this.get(`${this.baseUrl}/${type}`, params);
+      const response = await this.get(`/${type}`, params);
       return response.data.children.map(post => post.data);
     } catch (error) {
       console.log(`Failed to fetch posts: ${error.message}`);
@@ -52,10 +52,7 @@ class Api {
 
   async getComments(post, params = null) {
     try {
-      const response = await this.get(
-        `${this.baseUrl}/comments/${post}`,
-        params
-      );
+      const response = await this.get(`/comments/${post}`, params);
       return response[1].data.children
         .slice(0, -1)
         .map(comment => comment.data);
@@ -67,10 +64,7 @@ class Api {
 
   async getUser(username) {
     try {
-      const response = await this.get(
-        `${this.baseUrl}/user/${username}/about`,
-        null
-      );
+      const response = await this.get(`/user/${username}/about`, null);
       return response.data;
     } catch (error) {
       console.log(`Failed to fetch user ${username}: ${error.message}`);
