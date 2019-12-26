@@ -11,8 +11,8 @@ const typeDefs = gql`
 
   type Comment {
     id: ID!
-    author: String!
-    body: String!
+    author: String
+    body: String
     replies: [Comment!]
   }
 
@@ -24,7 +24,7 @@ const typeDefs = gql`
 
   type Post {
     id: ID!
-    author: String!
+    author: String
     body: String
     type: String
     score: Int!

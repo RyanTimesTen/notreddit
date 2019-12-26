@@ -64,8 +64,7 @@ class Api {
 
   getReplies(comment) {
     try {
-      // `comments.replies` comes back as empty string
-      if (comment.replies === '') return null;
+      if (!comment.replies) return null;
 
       return comment.replies.data.children.map(reply => reply.data);
     } catch (error) {
