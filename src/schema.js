@@ -69,7 +69,10 @@ const resolvers = {
     images(post) {
       if (!post.preview) return null;
       const images = post.preview.images[0];
-      return [images.source, ...images.resolutions];
+      return [images.source, ...images.resolutions].map(i => ({
+        ...i,
+        url: (i.url || '').replace('amp;', ''), // remove encoding from reddit
+      }));
     },
     gif(post) {
       if (!post.secure_media_embed) return null;
@@ -77,7 +80,7 @@ const resolvers = {
     },
   },
   Comment: {
-    replies: () => null, // TODO: Implement
+    replies: (comment, args, { api }) => api.getReplies(comment, args),
   },
   User: {
     username: user => user.name,

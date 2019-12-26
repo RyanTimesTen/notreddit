@@ -52,14 +52,26 @@ class Api {
     }
   }
 
-  async getComments(post, params = {}) {
+  async getComments(postId, params = {}) {
     try {
-      const response = await this.get(`/comments/${post}`, params);
-      return response[1].data.children
-        .slice(0, -1)
-        .map(comment => comment.data);
+      const response = await this.get(`/comments/${postId}`, params);
+      return response[1].data.children.map(comment => comment.data);
     } catch (error) {
       console.log(`Failed to fetch comments: ${error.message}`);
+      throw error;
+    }
+  }
+
+  getReplies(comment) {
+    try {
+      // `comments.replies` comes back as empty string
+      if (comment.replies === '') return null;
+
+      return comment.replies.data.children.map(reply => reply.data);
+    } catch (error) {
+      console.log(
+        `Failed to map replies from comment ${comment.id}: ${error.message}`
+      );
       throw error;
     }
   }
