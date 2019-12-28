@@ -3,6 +3,10 @@ import { ApolloServer } from 'apollo-server-lambda';
 import { typeDefs, resolvers } from './lib/schema';
 import { createApi } from './lib/api';
 
+// Workaround for node-fetch
+// https://github.com/netlify/zip-it-and-ship-it/issues/67#issuecomment-549837499
+require('encoding');
+
 const DEV = process.env.NODE_ENV !== 'production';
 
 const api = createApi();
