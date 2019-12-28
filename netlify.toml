@@ -2,7 +2,7 @@
   command = "yarn build"
 
   # netlify-lambda builds to this folder AND Netlify reads functions from here
-  functions = "build-lambda"
+  functions = "built-lambda"
 
   # create-react-app builds to this folder, Netlify should serve all these files statically
   publish = "build"
