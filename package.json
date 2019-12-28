@@ -23,7 +23,7 @@
     "build:lambda": "netlify-lambda build functions",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "netlify-lambda install"
+    "postinstall": "netlify-lambda install functions"
   },
   "eslintConfig": {
     "extends": "react-app"
