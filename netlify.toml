@@ -3,4 +3,4 @@
   base = "./frontend/"
 
   # Serverless functions.
-  functions = "./backend/functions/"
+  functions = "../backend/functions/"
