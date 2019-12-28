@@ -1,7 +1,7 @@
-const fetch = require('node-fetch');
-const qs = require('qs');
+import fetch from 'node-fetch';
+import qs from 'qs';
 
-class Api {
+export class Api {
   constructor({ baseUrl = 'https://oauth.reddit.com' } = {}) {
     this.baseUrl = baseUrl;
     this.token = null;
@@ -86,6 +86,4 @@ class Api {
   }
 }
 
-const createApi = () => new Api();
-
-module.exports = { createApi };
+export const createApi = () => new Api();

@@ -1,6 +1,6 @@
-const { gql } = require('apollo-server-lambda');
+import { gql } from 'apollo-server-lambda';
 
-const typeDefs = gql`
+export const typeDefs = gql`
   type User {
     id: ID!
     username: String!
@@ -54,7 +54,7 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers = {
+export const resolvers = {
   Query: {
     user: (_, { username }, { api }) => api.getUser(username),
     posts: (_, { listing, ...params }, { api }) =>
@@ -89,5 +89,3 @@ const resolvers = {
     created: user => user.created_utc,
   },
 };
-
-module.exports = { typeDefs, resolvers };

@@ -1,20 +1,19 @@
-const { ApolloServer } = require('apollo-server-lambda');
+import { ApolloServer } from 'apollo-server-lambda';
 
-const schema = require('./helpers/schema');
-const { createApi } = require('./helpers/api');
+import { typeDefs, resolvers } from './helpers/schema';
+import { createApi } from './helpers/api';
 
 const DEV = process.env.NODE_ENV !== 'production';
-const PORT = process.env.PORT || 3000;
 
 const api = createApi();
 
 const server = new ApolloServer({
-  typeDefs: schema.typeDefs,
-  resolvers: schema.resolvers,
+  typeDefs,
+  resolvers,
   context: ({ req }) => {
-    const token = (req.headers.authorization || '').split(' ')[1];
-    api.setAuth(token);
-    return { api };
+    // const token = (req.headers.authorization || '').split(' ')[1];
+    // api.setAuth(token);
+    // return { api };
   },
   cors: true,
   tracing: DEV,
