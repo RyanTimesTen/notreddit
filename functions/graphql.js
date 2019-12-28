@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-lambda';
 
-import { typeDefs, resolvers } from './helpers/schema';
-import { createApi } from './helpers/api';
+import { typeDefs, resolvers } from './lib/schema';
+import { createApi } from './lib/api';
 
 const DEV = process.env.NODE_ENV !== 'production';
 
