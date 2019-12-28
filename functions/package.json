@@ -9,17 +9,12 @@
   "author": "Ryan Gilbert <ryangilbert7926@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "apollo-server-express": "^2.9.12",
-    "express": "^4.17.1",
+    "apollo-server-lambda": "^2.9.15",
     "graphql": "^14.5.8",
     "node-fetch": "^1.7.3",
     "qs": "^6.5.1"
   },
   "devDependencies": {
     "nodemon": "^1.14.11"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "es5"
   }
 }
