@@ -2,7 +2,6 @@
   "name": "reddit-graphql",
   "version": "0.1.0",
   "description": "A GraphQL wrapper of the official Reddit API",
-  "main": "src/index.js",
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node src/index.js"
