@@ -1,6 +1,6 @@
 [build]
   # Directory to change to before starting a build.
-  base = "frontend/"
+  base = "./frontend/"
 
   # Serverless functions.
-  functions = "backend/functions/"
+  functions = "./backend/functions/"
