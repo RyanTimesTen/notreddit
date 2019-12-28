@@ -14,15 +14,13 @@ const api = createApi();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    // const token = (req.headers.authorization || '').split(' ')[1];
-    // api.setAuth(token);
-    // return { api };
+  context: ({ event }) => {
+    const token = (event.headers.authorization || '').split(' ')[1];
+    api.setAuth(token);
+    return { api };
   },
-  cors: true,
-  tracing: DEV,
   introspection: DEV,
-  playground: { endpoint: '/graphql' },
+  playground: DEV ? { endpoint: '/graphql' } : false,
 });
 
 exports.handler = server.createHandler();
