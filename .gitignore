@@ -24,3 +24,6 @@ yarn-error.log*
 
 # netlify lambda
 /built-lambda
+
+# Local Netlify folder
+.netlify
