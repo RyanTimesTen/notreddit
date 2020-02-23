@@ -20,7 +20,7 @@ const server = new ApolloServer({
     return { api };
   },
   introspection: DEV,
-  playground: DEV,
+  playground: false,
 });
 
 exports.handler = server.createHandler({
