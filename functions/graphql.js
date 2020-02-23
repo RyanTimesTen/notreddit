@@ -19,7 +19,7 @@ const server = new ApolloServer({
     api.setAuth(token);
     return { api };
   },
-  introspection: DEV,
+  introspection: true,
   playground: false,
 });
 
