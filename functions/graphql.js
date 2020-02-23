@@ -20,7 +20,7 @@ const server = new ApolloServer({
     return { api };
   },
   introspection: DEV,
-  playground: { endpoint: '/graphql' },
+  playground: DEV,
 });
 
 exports.handler = server.createHandler({
