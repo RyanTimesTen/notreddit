@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQuery } from 'urql';
 
 const Post = styled.div`
   max-width: 700px;
@@ -63,55 +64,48 @@ const AppTitle = styled.h1`
   margin: 0;
 `;
 
-const posts = [
-  {
-    id: '1',
-    title: 'My Posty Post',
-    author: {
-      username: 'person',
-    },
-    image: {
-      src:
-        'https://pmcdeadline2.files.wordpress.com/2019/12/catbug.jpg?w=681&h=383&crop=1',
-      alt: 'catbug with mittens on',
-    },
-  },
-  {
-    id: '2',
-    title: 'WHOA another Posty Post!',
-    author: {
-      username: 'yeti',
-    },
-    image: {
-      src:
-        'https://pmcdeadline2.files.wordpress.com/2019/12/catbug.jpg?w=681&h=383&crop=1',
-      alt: 'catbug with mittens on',
-    },
-  },
-];
-
 export const App: React.FC = () => {
+  const [{ fetching, data, error }] = useQuery({
+    query: `
+      {
+        posts(listing: best) {
+        id
+        author
+        title
+      }
+    }
+    `,
+  });
+
+  console.log({ data });
+
   return (
     <>
       <AppHeader>
         <AppTitle>Snooql</AppTitle>
       </AppHeader>
       <Layout>
-        <Posts>
-          {posts.map(post => (
-            <Post key={post.id}>
-              <PostHeader>
-                <HeaderDetails>
-                  <Title>{post.title}</Title>
-                  <Username>{post.author.username}</Username>
-                </HeaderDetails>
-              </PostHeader>
-              <Body>
-                <img src={post.image.src} alt={post.image.alt} />
-              </Body>
-            </Post>
-          ))}
-        </Posts>
+        {fetching ? (
+          <div>fetching...</div>
+        ) : error ? (
+          <div>oops</div>
+        ) : (
+          <Posts>
+            {data.posts.map((post: any) => (
+              <Post key={post.id}>
+                <PostHeader>
+                  <HeaderDetails>
+                    <Title>{post.title}</Title>
+                    <Username>{post.author}</Username>
+                  </HeaderDetails>
+                </PostHeader>
+                {/* <Body>
+                  <img src={post.image.src} alt={post.image.alt} />
+                </Body> */}
+              </Post>
+            ))}
+          </Posts>
+        )}
       </Layout>
     </>
   );
