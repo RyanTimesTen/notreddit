@@ -7,8 +7,6 @@ import { createApi } from './lib/api';
 // https://github.com/netlify/zip-it-and-ship-it/issues/67#issuecomment-549837499
 require('encoding');
 
-const DEV = process.env.NODE_ENV !== 'production';
-
 const api = createApi();
 
 const server = new ApolloServer({
@@ -20,7 +18,7 @@ const server = new ApolloServer({
     return { api };
   },
   introspection: true,
-  playground: false,
+  playground: '/graphql',
 });
 
 exports.handler = server.createHandler({
