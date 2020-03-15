@@ -10,12 +10,10 @@ const urqlClient = createClient({
   url: 'https://snooql.app/.netlify/functions/graphql',
   fetchOptions: {
     headers: {
-      authorization: 'Bearer 61936739-EJY4OzbQVfbXxV34kYKtJZMKwQ0',
+      authorization: 'Bearer 61936739-cjqOFOhip-bTi7mTH_HYKt98I5o',
     },
   },
 });
-
-console.log({ urqlClient });
 
 ReactDOM.render(
   <Provider value={urqlClient}>
