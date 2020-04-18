@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Post, IPost } from './Post';
 import { useQuery } from 'urql';
+
+import { Post, IPost } from './Post';
 
 const Layout = styled.div`
   display: flex;
