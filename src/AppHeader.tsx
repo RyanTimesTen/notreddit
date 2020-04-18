@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useAuth } from './state';
 
 const Header = styled.header`
   width: 100%;
@@ -26,9 +27,11 @@ const LogInButton = styled.button`
 `;
 
 export const AppHeader: React.FC = () => {
+  const { handleLogin } = useAuth();
+
   return (
     <Header>
-      <LogInButton>Log In</LogInButton>
+      <LogInButton onClick={handleLogin}>Log In</LogInButton>
     </Header>
   );
 };
