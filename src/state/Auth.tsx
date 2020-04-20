@@ -42,7 +42,17 @@ export const deparamefy = (urlString: string): QueryParams => {
   }, {});
 };
 
+const accessTokenFetchOptions = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+  },
+};
+
 export const AuthProvider: React.FC = ({ children }) => {
+  const refreshIntervalId = React.useRef<number | null>(null);
+
   if (window.location.pathname === '/auth') {
     // @TODO: error handling
 
@@ -50,11 +60,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     // @TODO: verify `state` param matches what was saved before
 
     fetch(accessTokenUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-      },
+      ...accessTokenFetchOptions,
       body: paramefy({
         grant_type: 'authorization_code',
         code,
@@ -62,11 +68,36 @@ export const AuthProvider: React.FC = ({ children }) => {
       }),
     })
       .then((response) => response.json())
-      .then((data) => {
-        localStorage.setItem('ACCESS_TOKEN', data.access_token);
+      .then(({ access_token, expires_in, refresh_token }) => {
+        localStorage.setItem('ACCESS_TOKEN', access_token);
+        refreshIntervalId.current = setInterval(() => {
+          refreshAccessToken(refresh_token);
+        }, expires_in * 1000);
         window.location.href = window.location.origin;
       });
   }
+
+  React.useEffect(() => {
+    return () => {
+      if (refreshIntervalId.current) {
+        clearInterval(refreshIntervalId.current);
+      }
+    };
+  });
+
+  const refreshAccessToken = (refreshToken: string) => {
+    fetch(accessTokenUrl, {
+      ...accessTokenFetchOptions,
+      body: paramefy({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    })
+      .then((response) => response.json())
+      .then(({ access_token }) => {
+        localStorage.setItem('ACCESS_TOKEN', access_token);
+      });
+  };
 
   const handleLogin = () => {
     const queryParams = {
