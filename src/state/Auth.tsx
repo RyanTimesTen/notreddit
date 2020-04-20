@@ -15,6 +15,9 @@ const clientId = process.env.REACT_APP_CLIENT_ID || '';
 const clientSecret = process.env.REACT_APP_CLIENT_SECRET || '';
 const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
 
+const verificationCodeKey = 'VERIFICATION_CODE';
+const accessTokenKey = 'ACCESS_TOKEN';
+
 // https://gist.github.com/6174/6062387
 const getRandomString = () =>
   Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -53,29 +56,33 @@ const accessTokenFetchOptions = {
 export const AuthProvider: React.FC = ({ children }) => {
   const refreshIntervalId = React.useRef<number | null>(null);
 
-  if (window.location.pathname === '/auth') {
-    // @TODO: error handling
+  React.useEffect(() => {
+    if (window.location.pathname === '/auth') {
+      const { state, code } = deparamefy(window.location.href);
+      const savedVerificationCode = localStorage.getItem(verificationCodeKey);
+      if (state !== savedVerificationCode) {
+        console.error(`Returned state value ${state} did not match ${savedVerificationCode}`);
+        return;
+      }
 
-    const { state, code } = deparamefy(window.location.href);
-    // @TODO: verify `state` param matches what was saved before
-
-    fetch(accessTokenUrl, {
-      ...accessTokenFetchOptions,
-      body: paramefy({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: redirectUri,
-      }),
-    })
-      .then((response) => response.json())
-      .then(({ access_token, expires_in, refresh_token }) => {
-        localStorage.setItem('ACCESS_TOKEN', access_token);
-        refreshIntervalId.current = setInterval(() => {
-          refreshAccessToken(refresh_token);
-        }, expires_in * 1000);
-        window.location.href = window.location.origin;
-      });
-  }
+      fetch(accessTokenUrl, {
+        ...accessTokenFetchOptions,
+        body: paramefy({
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: redirectUri,
+        }),
+      })
+        .then((response) => response.json())
+        .then(({ access_token, expires_in, refresh_token }) => {
+          localStorage.setItem(accessTokenKey, access_token);
+          refreshIntervalId.current = setInterval(() => {
+            refreshAccessToken(refresh_token);
+          }, expires_in * 1000);
+          window.location.href = window.location.origin;
+        });
+    }
+  });
 
   React.useEffect(() => {
     return () => {
@@ -95,15 +102,17 @@ export const AuthProvider: React.FC = ({ children }) => {
     })
       .then((response) => response.json())
       .then(({ access_token }) => {
-        localStorage.setItem('ACCESS_TOKEN', access_token);
+        localStorage.setItem(accessTokenKey, access_token);
       });
   };
 
   const handleLogin = () => {
+    const verificationCode = getRandomString();
+    localStorage.setItem(verificationCodeKey, verificationCode);
     const queryParams = {
       client_id: clientId,
       response_type: 'code',
-      state: getRandomString(), // @TODO: store this in localStorage to verify later
+      state: verificationCode,
       redirect_uri: redirectUri,
       duration: 'permanent',
       scope: 'read',
