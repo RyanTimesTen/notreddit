@@ -3,17 +3,17 @@ import ReactDOM from 'react-dom';
 import { createClient, Provider as UrqlProvider } from 'urql';
 
 import { App } from './App';
-import { AuthProvider } from './state';
+import { AuthProvider, accessTokenKey } from './state';
 import * as serviceWorker from './serviceWorker';
 import './index.css';
 
 const urqlClient = createClient({
   url: 'https://snooql.app/.netlify/functions/graphql',
-  fetchOptions: {
+  fetchOptions: () => ({
     headers: {
-      authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`,
+      authorization: `Bearer ${localStorage.getItem(accessTokenKey)}`,
     },
-  },
+  }),
 });
 
 ReactDOM.render(

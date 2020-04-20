@@ -16,7 +16,7 @@ const clientSecret = process.env.REACT_APP_CLIENT_SECRET || '';
 const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
 
 const verificationCodeKey = 'VERIFICATION_CODE';
-const accessTokenKey = 'ACCESS_TOKEN';
+export const accessTokenKey = 'ACCESS_TOKEN';
 
 // https://gist.github.com/6174/6062387
 const getRandomString = () =>
