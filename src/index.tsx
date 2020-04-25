@@ -17,11 +17,11 @@ const urqlClient = createClient({
 });
 
 ReactDOM.render(
-  <AuthProvider>
-    <UrqlProvider value={urqlClient}>
+  <UrqlProvider value={urqlClient}>
+    <AuthProvider>
       <App />
-    </UrqlProvider>
-  </AuthProvider>,
+    </AuthProvider>
+  </UrqlProvider>,
   document.getElementById('root')
 );
 

@@ -39,6 +39,12 @@ export const typeDefs = gql`
     url: String
   }
 
+  type AuthorizationPayload {
+    accessToken: String
+    expiresIn: Int
+    refreshToken: String
+  }
+
   enum Listing {
     best
     hot
@@ -52,24 +58,28 @@ export const typeDefs = gql`
     user(username: String!): User!
     posts(listing: Listing!, after: String, before: String, limit: Int): [Post!]
   }
+
+  type Mutation {
+    authorize(authCode: String!): AuthorizationPayload
+    refreshAccessToken(refreshToken: String!): AuthorizationPayload
+  }
 `;
 
 export const resolvers = {
   Query: {
     user: (_, { username }, { api }) => api.getUser(username),
-    posts: (_, { listing, ...params }, { api }) =>
-      api.getPosts(listing, params),
+    posts: (_, { listing, ...params }, { api }) => api.getPosts(listing, params),
   },
   Post: {
-    body: post => post.selftext,
-    type: post => post.post_hint,
-    created: post => post.created_utc,
+    body: (post) => post.selftext,
+    type: (post) => post.post_hint,
+    created: (post) => post.created_utc,
     comments: (post, args, { api }) => api.getComments(post.id, args),
-    numComments: post => post.num_comments,
+    numComments: (post) => post.num_comments,
     images(post) {
       if (!post.preview) return null;
       const images = post.preview.images[0];
-      return [images.source, ...images.resolutions].map(i => ({
+      return [images.source, ...images.resolutions].map((i) => ({
         ...i,
         url: (i.url || '').replace('amp;', ''), // remove encoding from reddit
       }));
@@ -83,9 +93,13 @@ export const resolvers = {
     replies: (comment, args, { api }) => api.getReplies(comment, args),
   },
   User: {
-    username: user => user.name,
-    commentKarma: user => user.comment_karma,
-    linkKarma: user => user.link_karma,
-    created: user => user.created_utc,
+    username: (user) => user.name,
+    commentKarma: (user) => user.comment_karma,
+    linkKarma: (user) => user.link_karma,
+    created: (user) => user.created_utc,
+  },
+  Mutation: {
+    authorize: (_, { authCode }, { api }) => api.fetchAccessToken(authCode),
+    refreshAccessToken: (_, { refreshToken }, { api }) => api.refreshAccessToken(refreshToken),
   },
 };

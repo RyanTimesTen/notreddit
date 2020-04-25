@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useMutation } from 'urql';
 
 interface IAuthContext {
   handleLogin(): void;
@@ -10,14 +11,13 @@ export const AuthContext = React.createContext<IAuthContext>({
 
 const authorizationUrl = 'https://www.reddit.com/api/v1/authorize.compact';
 const desktopAuthorizationUrl = 'https://www.reddit.com/api/v1/authorize';
-const accessTokenUrl = 'https://www.reddit.com/api/v1/access_token';
 
 const clientId = process.env.REACT_APP_CLIENT_ID || '';
-const clientSecret = process.env.REACT_APP_CLIENT_SECRET || '';
 const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
 
 const verificationCodeKey = 'VERIFICATION_CODE';
 export const accessTokenKey = 'ACCESS_TOKEN';
+const refreshTokenKey = 'REFRESH_TOKEN';
 
 // https://gist.github.com/6174/6062387
 const getRandomString = () =>
@@ -46,16 +46,32 @@ export const deparamefy = (urlString: string): QueryParams => {
   }, {});
 };
 
-const accessTokenFetchOptions = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-    Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-  },
-};
+const authorizationMutation = `
+  mutation Authorize($authCode: String!) {
+    authorize(authCode: $authCode) {
+      accessToken
+      expiresIn
+      refreshToken
+    }
+  }
+`;
+
+interface IAuthorizationPayload {
+  authorize: {
+    accessToken?: string;
+    expiresIn?: number;
+    refreshToken?: string;
+  };
+}
+
+interface IAuthorizationArgs {
+  authCode: string;
+}
 
 export const AuthProvider: React.FC = ({ children }) => {
-  const refreshIntervalId = React.useRef<number | null>(null);
+  const [_, authorize] = useMutation<IAuthorizationPayload, IAuthorizationArgs>(
+    authorizationMutation
+  );
 
   React.useEffect(() => {
     if (window.location.pathname === '/auth') {
@@ -66,46 +82,20 @@ export const AuthProvider: React.FC = ({ children }) => {
         return;
       }
 
-      fetch(accessTokenUrl, {
-        ...accessTokenFetchOptions,
-        body: paramefy({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: redirectUri,
-        }),
-      })
-        .then((response) => response.json())
-        .then(({ access_token, expires_in, refresh_token }) => {
-          localStorage.setItem(accessTokenKey, access_token);
-          refreshIntervalId.current = setInterval(() => {
-            refreshAccessToken(refresh_token);
-          }, expires_in * 1000);
-          window.location.href = window.location.origin;
-        });
-    }
-  });
+      authorize({ authCode: code }).then(({ data }) => {
+        if (!data) {
+          //@TODO
+          return;
+        }
 
-  React.useEffect(() => {
-    return () => {
-      if (refreshIntervalId.current) {
-        clearInterval(refreshIntervalId.current);
-      }
-    };
-  });
-
-  const refreshAccessToken = (refreshToken: string) => {
-    fetch(accessTokenUrl, {
-      ...accessTokenFetchOptions,
-      body: paramefy({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-      }),
-    })
-      .then((response) => response.json())
-      .then(({ access_token }) => {
-        localStorage.setItem(accessTokenKey, access_token);
+        const { accessToken, expiresIn, refreshToken } = data.authorize;
+        //@TODO handle refresh
+        localStorage.setItem(accessTokenKey, accessToken ?? '');
+        localStorage.setItem(refreshTokenKey, refreshToken ?? '');
+        window.location.href = window.location.origin;
       });
-  };
+    }
+  }, [authorize]);
 
   const handleLogin = () => {
     const verificationCode = getRandomString();
@@ -125,9 +115,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     window.location.href = redditAuthUrl;
   };
 
-  const value = {
-    handleLogin,
-  };
+  const value = { handleLogin };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

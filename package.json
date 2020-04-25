@@ -10,6 +10,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "dotenv-webpack": "^1.7.0",
     "encoding": "^0.1.12",
     "graphql": "^14.6.0",
     "react": "^16.12.0",
@@ -21,7 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:lambda": "netlify-lambda serve functions",
+    "start:lambda": "netlify-lambda serve functions --config ./webpack.functions.js",
     "build": "run-p build:**",
     "build:app": "react-scripts build",
     "build:lambda": "netlify-lambda build functions",
