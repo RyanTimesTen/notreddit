@@ -8,7 +8,8 @@ export const AuthContext = React.createContext<IAuthContext>({
   handleLogin: () => {},
 });
 
-const authorizationUrl = 'https://www.reddit.com/api/v1/authorize';
+const authorizationUrl = 'https://www.reddit.com/api/v1/authorize.compact';
+const desktopAuthorizationUrl = 'https://www.reddit.com/api/v1/authorize';
 const accessTokenUrl = 'https://www.reddit.com/api/v1/access_token';
 
 const clientId = process.env.REACT_APP_CLIENT_ID || '';
@@ -117,8 +118,11 @@ export const AuthProvider: React.FC = ({ children }) => {
       duration: 'permanent',
       scope: 'read',
     };
-    const redditAuthrl = `${authorizationUrl}?${paramefy(queryParams)}`;
-    window.location.href = redditAuthrl;
+
+    const isDesktop = window.matchMedia('(min-width: 415px)').matches;
+    const url = isDesktop ? desktopAuthorizationUrl : authorizationUrl;
+    const redditAuthUrl = `${url}?${paramefy(queryParams)}`;
+    window.location.href = redditAuthUrl;
   };
 
   const value = {
