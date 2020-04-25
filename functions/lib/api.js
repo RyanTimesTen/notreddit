@@ -2,9 +2,9 @@ import fetch from 'node-fetch';
 import qs from 'qs';
 import { paramefy } from './util';
 
-const clientId = process.env.REACT_APP_CLIENT_ID || '';
-const clientSecret = process.env.REACT_APP_CLIENT_SECRET || '';
-const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
+const clientId = process.env.CLIENT_ID || '';
+const clientSecret = process.env.CLIENT_SECRET || '';
+const redirectUri = process.env.REDIRECT_URI || '';
 
 const accessTokenUrl = 'https://www.reddit.com/api/v1/access_token';
 
