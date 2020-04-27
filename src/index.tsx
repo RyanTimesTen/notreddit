@@ -11,8 +11,9 @@ import {
 import { pipe, map } from 'wonka';
 
 import { App } from './App';
-import { AuthProvider, accessTokenKey } from './state';
+import { AuthProvider } from './state';
 import * as serviceWorker from './serviceWorker';
+import { accessTokenKey } from './constants';
 import './index.css';
 
 const graphqlUrl =
