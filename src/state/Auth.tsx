@@ -44,7 +44,11 @@ export const AuthProvider: React.FC = ({ children }) => {
       return;
     }
     const millisUntilExpiration = Number(expirationDate) - Date.now();
-    tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
+    if (Date.now() > millisUntilExpiration) {
+      handleRefreshAccessToken();
+    } else {
+      tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
+    }
   }, []); // eslint-disable-line
 
   React.useEffect(() => {
