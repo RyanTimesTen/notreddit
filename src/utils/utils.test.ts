@@ -1,4 +1,4 @@
-import { paramefy, deparamefy } from './Auth';
+import { paramefy, deparamefy } from './utils';
 
 describe('paramefy', () => {
   it('serializes a query param object into a query string', () => {
