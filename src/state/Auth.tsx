@@ -17,7 +17,8 @@ const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
 
 const verificationCodeKey = 'VERIFICATION_CODE';
 export const accessTokenKey = 'ACCESS_TOKEN';
-const refreshTokenKey = 'REFRESH_TOKEN';
+export const refreshTokenKey = 'REFRESH_TOKEN';
+export const expiresDateKey = 'EXPIRES_DATE';
 
 // https://gist.github.com/6174/6062387
 const getRandomString = () =>
@@ -56,6 +57,15 @@ const authorizationMutation = `
   }
 `;
 
+const refreshAccessTokenMutation = `
+  mutation RefreshAccessToken($refreshToken: String!) {
+    refreshAccessToken(refreshToken: $refreshToken) {
+      accessToken
+      expiresIn
+    }
+  }
+`;
+
 interface IAuthorizationPayload {
   authorize: {
     accessToken?: string;
@@ -68,10 +78,41 @@ interface IAuthorizationArgs {
   authCode: string;
 }
 
+interface IRefreshAccessTokenArgs {
+  refreshToken: string;
+}
+
 export const AuthProvider: React.FC = ({ children }) => {
-  const [_, authorize] = useMutation<IAuthorizationPayload, IAuthorizationArgs>(
+  const tokenRefreshId = React.useRef<number | null>(null);
+
+  const [, authorize] = useMutation<IAuthorizationPayload, IAuthorizationArgs>(
     authorizationMutation
   );
+
+  const [, refreshAccessToken] = useMutation<IAuthorizationPayload, IRefreshAccessTokenArgs>(
+    refreshAccessTokenMutation
+  );
+
+  const handleRefreshAccessToken = React.useCallback(() => {
+    const refreshToken = localStorage.getItem(refreshTokenKey);
+    if (!refreshToken) {
+      return;
+    }
+
+    refreshAccessToken({ refreshToken }).then(({ data }) => {
+      localStorage.setItem(accessTokenKey, data?.authorize.accessToken ?? '');
+    });
+  }, [refreshAccessToken]);
+
+  // Schedule token refresh
+  React.useEffect(() => {
+    const expirationDate = localStorage.getItem(expiresDateKey);
+    if (!expirationDate) {
+      return;
+    }
+    const millisUntilExpiration = Number(expirationDate) - Date.now();
+    tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
+  }, []); // eslint-disable-line
 
   React.useEffect(() => {
     if (window.location.pathname === '/auth') {
@@ -82,20 +123,32 @@ export const AuthProvider: React.FC = ({ children }) => {
         return;
       }
 
-      authorize({ authCode: code }).then(({ data }) => {
-        if (!data) {
-          //@TODO
+      authorize({ authCode: code }).then(({ data, error }) => {
+        if (!data || !data.authorize) {
+          console.error('Authorization failed.', { error });
           return;
         }
 
         const { accessToken, expiresIn, refreshToken } = data.authorize;
-        //@TODO handle refresh
         localStorage.setItem(accessTokenKey, accessToken ?? '');
         localStorage.setItem(refreshTokenKey, refreshToken ?? '');
-        window.location.href = window.location.origin;
+
+        if (expiresIn) {
+          const millisUntilExpiration = (Date.now() + expiresIn * 1000).toString();
+          localStorage.setItem(expiresDateKey, millisUntilExpiration);
+          tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
+        }
       });
     }
-  }, [authorize]);
+  }, [authorize, handleRefreshAccessToken]);
+
+  React.useEffect(() => {
+    return () => {
+      if (tokenRefreshId.current) {
+        clearInterval(tokenRefreshId.current);
+      }
+    };
+  });
 
   const handleLogin = () => {
     const verificationCode = getRandomString();
