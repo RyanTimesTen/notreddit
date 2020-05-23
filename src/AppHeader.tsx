@@ -5,10 +5,7 @@ import { useAuth } from './state';
 const Header = styled.header`
   width: 100%;
   height: 80px;
-  border-bottom: 1px solid #000;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1.5px solid #000;
 
   display: flex;
   justify-content: center;
@@ -17,21 +14,58 @@ const Header = styled.header`
   margin-bottom: 20px;
 `;
 
-const LogInButton = styled.button`
-  width: 100px;
-  height: 40px;
-  border-radius: 4px;
-  background-color: #ffd1dc;
-  font-size: 1rem;
+const Content = styled.div`
+  width: 100%;
+  max-width: 300px;
+  @media (min-width: 425px) {
+    max-width: 525px;
+  }
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const AuthButton = styled.button`
+  color: inherit;
   cursor: pointer;
+  background-color: inherit;
+  border: none;
+  font-size: 1rem;
+  height: 100%;
+  :hover {
+    text-decoration: underline;
+  }
+`;
+
+const Title = styled.span`
+  font-size: 1.25rem;
+`;
+
+const Hidden = styled.div`
+  visibility: hidden;
 `;
 
 export const AppHeader: React.FC = () => {
-  const { handleLogin } = useAuth();
+  const { handleLogin, handleLogout, user } = useAuth();
 
   return (
     <Header>
-      <LogInButton onClick={handleLogin}>Log In</LogInButton>
+      <Content>
+        {user ? (
+          <>
+            <span>{user.username}</span>
+            <Title>NotReddit</Title>
+            <AuthButton onClick={handleLogout}>Log Out</AuthButton>
+          </>
+        ) : (
+          <>
+            <Hidden>hidden</Hidden>
+            <Title>NotReddit</Title>
+            <AuthButton onClick={handleLogin}>Log In</AuthButton>
+          </>
+        )}
+      </Content>
     </Header>
   );
 };

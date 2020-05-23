@@ -1,22 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useQuery } from 'urql';
 
 import { Post, IPost } from './Post';
-
-const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  & > * {
-    margin-top: 1rem;
-  }
-
-  & > :first-child {
-    margin-top: 0;
-  }
-`;
 
 interface IPosts {
   posts: IPost[];
@@ -40,7 +25,7 @@ export const Posts: React.FC = () => {
   });
 
   return (
-    <Layout>
+    <>
       {fetching ? (
         <div>fetching...</div>
       ) : error ? (
@@ -48,6 +33,6 @@ export const Posts: React.FC = () => {
       ) : (
         data && data.posts.map(post => <Post key={post.id} post={post}></Post>)
       )}
-    </Layout>
+    </>
   );
 };

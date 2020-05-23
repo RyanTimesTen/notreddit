@@ -26,9 +26,8 @@ const Card = styled.div`
   }
 
   width: 100%;
-  background-color: #fff;
   border-radius: 4px;
-  border: 1px solid #000;
+  border: 1.5px solid #000;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
 `;
 

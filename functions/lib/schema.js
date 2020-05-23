@@ -55,8 +55,9 @@ export const typeDefs = gql`
   }
 
   type Query {
-    user(username: String!): User!
+    me: User!
     posts(listing: Listing!, after: String, before: String, limit: Int): [Post!]
+    user(username: String!): User!
   }
 
   type Mutation {
@@ -67,19 +68,20 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Query: {
-    user: (_, { username }, { api }) => api.getUser(username),
+    me: (_, __, { api }) => api.getMe(),
     posts: (_, { listing, ...params }, { api }) => api.getPosts(listing, params),
+    user: (_, { username }, { api }) => api.getUser(username),
   },
   Post: {
-    body: (post) => post.selftext,
-    type: (post) => post.post_hint,
-    created: (post) => post.created_utc,
+    body: post => post.selftext,
+    type: post => post.post_hint,
+    created: post => post.created_utc,
     comments: (post, args, { api }) => api.getComments(post.id, args),
-    numComments: (post) => post.num_comments,
+    numComments: post => post.num_comments,
     images(post) {
       if (!post.preview) return null;
       const images = post.preview.images[0];
-      return [images.source, ...images.resolutions].map((i) => ({
+      return [images.source, ...images.resolutions].map(i => ({
         ...i,
         url: (i.url || '').replace('amp;', ''), // remove encoding from reddit
       }));
@@ -93,10 +95,10 @@ export const resolvers = {
     replies: (comment, args, { api }) => api.getReplies(comment, args),
   },
   User: {
-    username: (user) => user.name,
-    commentKarma: (user) => user.comment_karma,
-    linkKarma: (user) => user.link_karma,
-    created: (user) => user.created_utc,
+    username: user => user.name,
+    commentKarma: user => user.comment_karma,
+    linkKarma: user => user.link_karma,
+    created: user => user.created_utc,
   },
   Mutation: {
     authorize: (_, { authCode }, { api }) => api.fetchAccessToken(authCode),

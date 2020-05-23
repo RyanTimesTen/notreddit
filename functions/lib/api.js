@@ -57,10 +57,19 @@ export class Api {
     }
   }
 
+  async getMe() {
+    try {
+      return await this.get('/api/v1/me');
+    } catch (error) {
+      console.error(`Failed to fetch me: ${error.message}`);
+      throw error;
+    }
+  }
+
   async getPosts(listing, params = {}) {
     try {
       const response = await this.get(`/${listing}`, params);
-      return response.data.children.map((post) => post.data);
+      return response.data.children.map(post => post.data);
     } catch (error) {
       console.log(`Failed to fetch posts: ${error.message}`);
       throw error;
@@ -70,7 +79,7 @@ export class Api {
   async getComments(postId, params = {}) {
     try {
       const response = await this.get(`/comments/${postId}`, params);
-      return response[1].data.children.map((comment) => comment.data);
+      return response[1].data.children.map(comment => comment.data);
     } catch (error) {
       console.log(`Failed to fetch comments: ${error.message}`);
       throw error;
@@ -81,7 +90,7 @@ export class Api {
     try {
       if (!comment.replies) return null;
 
-      return comment.replies.data.children.map((reply) => reply.data);
+      return comment.replies.data.children.map(reply => reply.data);
     } catch (error) {
       console.log(`Failed to map replies from comment ${comment.id}: ${error.message}`);
       throw error;
