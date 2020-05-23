@@ -1,51 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  createClient,
-  Provider as UrqlProvider,
-  Exchange,
-  dedupExchange,
-  cacheExchange,
-  fetchExchange,
-} from 'urql';
-import { pipe, map } from 'wonka';
+import { createClient, Provider as UrqlProvider } from 'urql';
 
 import { App } from './App';
 import { AuthProvider } from './state';
 import * as serviceWorker from './serviceWorker';
-import { accessTokenKey } from './constants';
+import { graphqlUrl } from './constants';
 import './index.css';
-
-const graphqlUrl =
-  process.env.NODE_ENV !== 'production'
-    ? 'http://localhost:9000/.netlify/functions/graphql'
-    : 'https://snooql.app/.netlify/functions/graphql';
-
-const authExchange: Exchange = ({ forward }) => ops$ =>
-  pipe(
-    ops$,
-    map(op => {
-      const fetchOptions =
-        typeof op.context.fetchOptions === 'function'
-          ? op.context.fetchOptions()
-          : op.context.fetchOptions || {};
-
-      op.context.fetchOptions = {
-        ...fetchOptions,
-        headers: {
-          ...fetchOptions.headers,
-          authorization: `Bearer ${localStorage.getItem(accessTokenKey)}`,
-        },
-      };
-
-      return op;
-    }),
-    forward
-  );
+import { getToken } from './utils';
 
 const urqlClient = createClient({
   url: graphqlUrl,
-  exchanges: [dedupExchange, cacheExchange, authExchange, fetchExchange],
+  fetchOptions: () => ({
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  }),
 });
 
 ReactDOM.render(

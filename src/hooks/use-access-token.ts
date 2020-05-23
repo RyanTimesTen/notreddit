@@ -1,7 +1,14 @@
 import React from 'react';
 import { useMutation } from 'urql';
+import {
+  isTokenExpired,
+  getRefreshToken,
+  setToken,
+  setExpirationDate,
+  setRefreshToken,
+} from '../utils';
 
-const authorizationMutation = `
+const authorizationMutationDocument = `
   mutation Authorize($authCode: String!) {
     authorize(authCode: $authCode) {
       accessToken
@@ -11,7 +18,7 @@ const authorizationMutation = `
   }
 `;
 
-const refreshAccessTokenMutation = `
+const refreshAccessTokenMutationDocument = `
   mutation RefreshAccessToken($refreshToken: String!) {
     refreshAccessToken(refreshToken: $refreshToken) {
       accessToken
@@ -28,6 +35,13 @@ interface IAuthorizationPayload {
   };
 }
 
+interface IRefreshTokenPayload {
+  refreshAccessToken: {
+    accessToken?: string;
+    expiresIn?: number;
+  };
+}
+
 interface IAuthorizationArgs {
   authCode: string;
 }
@@ -37,18 +51,85 @@ interface IRefreshAccessTokenArgs {
 }
 
 export const useAccessToken = () => {
-  const [, authorize] = useMutation<IAuthorizationPayload, IAuthorizationArgs>(
-    authorizationMutation
+  const authorizeMutation = useMutation<IAuthorizationPayload, IAuthorizationArgs>(
+    authorizationMutationDocument
+  )[1];
+
+  const refreshAccessTokenMutation = useMutation<IRefreshTokenPayload, IRefreshAccessTokenArgs>(
+    refreshAccessTokenMutationDocument
+  )[1];
+
+  const authorize = React.useCallback(
+    async (code: string) => {
+      const { data, error } = await authorizeMutation({ authCode: code });
+      if (!data || error) {
+        console.error('Authorization failed.', { error });
+        return;
+      }
+
+      const { accessToken, expiresIn, refreshToken } = data.authorize;
+
+      if (!accessToken) {
+        console.error('No access token returned from authorization');
+        return;
+      }
+
+      setToken(accessToken);
+
+      if (!expiresIn) {
+        console.error('No expiration date returned from authorization');
+      } else {
+        setExpirationDate(expiresIn);
+      }
+
+      if (!refreshToken) {
+        console.error('No refresh token returned from authorization');
+        return;
+      }
+
+      setRefreshToken(refreshToken);
+    },
+    [authorizeMutation]
   );
 
-  const [, refreshAccessToken] = useMutation<IAuthorizationPayload, IRefreshAccessTokenArgs>(
-    refreshAccessTokenMutation
-  );
+  const refreshAccessToken = React.useCallback(async () => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      console.error('No refresh token available');
+      return;
+    }
 
-  const value = React.useMemo(() => ({ authorize, refreshAccessToken }), [
-    authorize,
-    refreshAccessToken,
-  ]);
+    const { data, error } = await refreshAccessTokenMutation({ refreshToken });
+    if (!data || error) {
+      console.error('Token refresh failed', { error });
+      return;
+    }
+
+    const { expiresIn, accessToken } = data.refreshAccessToken;
+
+    if (!accessToken) {
+      console.error('No access token returned from refresh');
+      return;
+    }
+
+    setToken(accessToken);
+
+    if (!expiresIn) {
+      console.error('No expiration date returned from refresh');
+      return;
+    }
+
+    setExpirationDate(expiresIn);
+  }, [refreshAccessTokenMutation]);
+
+  // Check if we need to refresh the token
+  React.useEffect(() => {
+    if (isTokenExpired()) {
+      refreshAccessToken();
+    }
+  }, [refreshAccessToken]);
+
+  const value = React.useMemo(() => ({ authorize }), [authorize]);
 
   return value;
 };

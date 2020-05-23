@@ -6,9 +6,6 @@ import {
   redirectUri,
   desktopAuthorizationUrl,
   authorizationUrl,
-  refreshTokenKey,
-  accessTokenKey,
-  millisUntilExpirationKey,
 } from '../constants';
 import { deparamefy, getRandomString, paramefy } from '../utils';
 import { useAccessToken } from '../hooks';
@@ -22,34 +19,7 @@ export const AuthContext = React.createContext<IAuthContext>({
 });
 
 export const AuthProvider: React.FC = ({ children }) => {
-  const tokenRefreshId = React.useRef<number | null>(null);
-
-  const { authorize, refreshAccessToken } = useAccessToken();
-
-  const handleRefreshAccessToken = React.useCallback(() => {
-    const refreshToken = localStorage.getItem(refreshTokenKey);
-    if (!refreshToken) {
-      return;
-    }
-
-    refreshAccessToken({ refreshToken }).then(({ data }) => {
-      localStorage.setItem(accessTokenKey, data?.authorize.accessToken ?? '');
-    });
-  }, [refreshAccessToken]);
-
-  // Schedule token refresh
-  React.useEffect(() => {
-    const expirationDate = localStorage.getItem(millisUntilExpirationKey);
-    if (!expirationDate) {
-      return;
-    }
-    const millisUntilExpiration = Number(expirationDate) - Date.now();
-    if (Date.now() > millisUntilExpiration) {
-      handleRefreshAccessToken();
-    } else {
-      tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
-    }
-  }, []); // eslint-disable-line
+  const { authorize } = useAccessToken();
 
   React.useEffect(() => {
     if (window.location.pathname === '/auth') {
@@ -60,32 +30,10 @@ export const AuthProvider: React.FC = ({ children }) => {
         return;
       }
 
-      authorize({ authCode: code }).then(({ data, error }) => {
-        if (!data || !data.authorize) {
-          console.error('Authorization failed.', { error });
-          return;
-        }
-
-        const { accessToken, expiresIn, refreshToken } = data.authorize;
-        localStorage.setItem(accessTokenKey, accessToken ?? '');
-        localStorage.setItem(refreshTokenKey, refreshToken ?? '');
-
-        if (expiresIn) {
-          const millisUntilExpiration = (Date.now() + expiresIn * 1000).toString();
-          localStorage.setItem(millisUntilExpirationKey, millisUntilExpiration);
-          tokenRefreshId.current = setInterval(handleRefreshAccessToken, millisUntilExpiration);
-        }
-      });
+      authorize(code);
+      window.location.href = window.location.origin;
     }
-  }, [authorize, handleRefreshAccessToken]);
-
-  React.useEffect(() => {
-    return () => {
-      if (tokenRefreshId.current) {
-        clearInterval(tokenRefreshId.current);
-      }
-    };
-  });
+  }, [authorize]);
 
   const handleLogin = () => {
     const verificationCode = getRandomString();
