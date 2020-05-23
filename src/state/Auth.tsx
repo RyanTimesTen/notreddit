@@ -30,8 +30,9 @@ export const AuthProvider: React.FC = ({ children }) => {
         return;
       }
 
-      authorize(code);
-      window.location.href = window.location.origin;
+      authorize(code).then(() => {
+        window.location.href = window.location.origin;
+      });
     }
   }, [authorize]);
 
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC = ({ children }) => {
       state: verificationCode,
       redirect_uri: redirectUri,
       duration: 'permanent',
-      scope: 'read',
+      scope: 'identity,read',
     };
 
     const isDesktop = window.matchMedia('(min-width: 415px)').matches;
