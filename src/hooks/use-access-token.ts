@@ -120,6 +120,7 @@ export const useAccessToken = () => {
     }
 
     setExpirationDate(expiresIn);
+    window.location.reload();
   }, [refreshAccessTokenMutation]);
 
   // Check if we need to refresh the token
