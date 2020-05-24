@@ -28,15 +28,15 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <AppHeader></AppHeader>
+      <AppHeader />
       <Layout>
         {user ? (
           <Posts />
         ) : (
           <Text centered>
-            Log in to see posts
+            log in to see posts
             <br />
-            You will be taken to Reddit.com to authenticate NotReddit
+            you will be taken to reddit.com to log in there
           </Text>
         )}
       </Layout>

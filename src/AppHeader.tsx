@@ -16,14 +16,11 @@ const Header = styled.header`
 
 const Content = styled.div`
   width: 100%;
-  max-width: 300px;
+  padding: 1rem;
+
   @media (min-width: 425px) {
     max-width: 525px;
   }
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 `;
 
 const AuthButton = styled.button`
@@ -36,14 +33,8 @@ const AuthButton = styled.button`
   :hover {
     text-decoration: underline;
   }
-`;
-
-const Title = styled.span`
-  font-size: 1.25rem;
-`;
-
-const Hidden = styled.div`
-  visibility: hidden;
+  float: right;
+  padding: 0;
 `;
 
 export const AppHeader: React.FC = () => {
@@ -55,14 +46,11 @@ export const AppHeader: React.FC = () => {
         {user ? (
           <>
             <span>{user.username}</span>
-            <Title>NotReddit</Title>
-            <AuthButton onClick={handleLogout}>Log Out</AuthButton>
+            <AuthButton onClick={handleLogout}>log out</AuthButton>
           </>
         ) : (
           <>
-            <Hidden>hidden</Hidden>
-            <Title>NotReddit</Title>
-            <AuthButton onClick={handleLogin}>Log In</AuthButton>
+            <AuthButton onClick={handleLogin}>log in</AuthButton>
           </>
         )}
       </Content>
