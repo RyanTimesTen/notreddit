@@ -12,4 +12,4 @@ export const redirectUri = process.env.REACT_APP_REDIRECT_URI || '';
 export const graphqlUrl =
   process.env.NODE_ENV !== 'production'
     ? 'http://localhost:9000/.netlify/functions/graphql'
-    : 'https://snooql.app/.netlify/functions/graphql';
+    : 'https://notreddit.app/.netlify/functions/graphql';
