@@ -12,15 +12,22 @@ export const Posts: React.FC = () => {
     query: `
       {
         posts(listing: best) {
-          id
           author
-          title
+          body
+          id
           images {
             url
             width
           }
+          secureMedia {
+            redditVideo {
+              fallbackUrl
+            }
+          }
+          subreddit
+          title
+        }
       }
-    }
     `,
   });
 

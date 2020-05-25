@@ -22,20 +22,29 @@ export const typeDefs = gql`
     height: Int!
   }
 
+  type SecureMedia {
+    redditVideo: RedditVideo
+  }
+
+  type RedditVideo {
+    fallbackUrl: String
+  }
+
   type Post {
-    id: ID!
     author: String
     body: String
-    type: String
-    score: Int!
-    created: Float!
     comments(depth: Int, limit: Int): [Comment!]
-    numComments: Int!
-    images: [Image!]
+    created: Float!
     gif: String
+    id: ID!
+    images: [Image!]
+    numComments: Int!
+    score: Int!
+    secureMedia: SecureMedia
     subreddit: String!
     thumbnail: String!
     title: String!
+    type: String
     url: String
   }
 
@@ -74,11 +83,13 @@ export const resolvers = {
   },
   Post: {
     body: post => post.selftext,
-    type: post => post.post_hint,
-    created: post => post.created_utc,
     comments: (post, args, { api }) => api.getComments(post.id, args),
-    numComments: post => post.num_comments,
-    images(post) {
+    created: post => post.created_utc,
+    gif: post => {
+      if (!post.secure_media_embed) return null;
+      return post.secure_media_embed.media_domain_url;
+    },
+    images: post => {
       if (!post.preview) return null;
       const images = post.preview.images[0];
       return [images.source, ...images.resolutions].map(i => ({
@@ -86,13 +97,18 @@ export const resolvers = {
         url: (i.url || '').replace('amp;', ''), // remove encoding from reddit
       }));
     },
-    gif(post) {
-      if (!post.secure_media_embed) return null;
-      return post.secure_media_embed.media_domain_url;
-    },
+    numComments: post => post.num_comments,
+    secureMedia: post => post.secure_media,
+    type: post => post.post_hint,
   },
   Comment: {
     replies: (comment, args, { api }) => api.getReplies(comment, args),
+  },
+  SecureMedia: {
+    redditVideo: media => media.reddit_video,
+  },
+  RedditVideo: {
+    fallbackUrl: video => video.fallback_url,
   },
   User: {
     username: user => user.name,
