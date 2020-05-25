@@ -16,6 +16,22 @@ export const typeDefs = gql`
     replies: [Comment!]
   }
 
+  type Images {
+    source: Image
+    resolutions: [Image]
+    variants: Variants
+  }
+
+  type Variants {
+    gif: Variant
+    mp4: Variant
+  }
+
+  type Variant {
+    source: Image
+    resolutions: [Image]
+  }
+
   type Image {
     url: String!
     width: Int!
@@ -37,8 +53,8 @@ export const typeDefs = gql`
     created: Float!
     gif: String
     id: ID!
-    images: [Image!]
     numComments: Int!
+    preview: Preview
     score: Int!
     secureMedia: SecureMedia
     subreddit: String!
@@ -46,6 +62,15 @@ export const typeDefs = gql`
     title: String!
     type: String
     url: String
+  }
+
+  type Preview {
+    images: [Images]
+    redditVideoPreview: RedditVideoPreview
+  }
+
+  type RedditVideoPreview {
+    fallbackUrl: String
   }
 
   type AuthorizationPayload {
@@ -89,14 +114,6 @@ export const resolvers = {
       if (!post.secure_media_embed) return null;
       return post.secure_media_embed.media_domain_url;
     },
-    images: post => {
-      if (!post.preview) return null;
-      const images = post.preview.images[0];
-      return [images.source, ...images.resolutions].map(i => ({
-        ...i,
-        url: (i.url || '').replace('amp;', ''), // remove encoding from reddit
-      }));
-    },
     numComments: post => post.num_comments,
     secureMedia: post => post.secure_media,
     type: post => post.post_hint,
@@ -104,10 +121,19 @@ export const resolvers = {
   Comment: {
     replies: (comment, args, { api }) => api.getReplies(comment, args),
   },
+  Image: {
+    url: image => (image.url || '').replace('amp;', ''), // remove encoding from reddit
+  },
   SecureMedia: {
     redditVideo: media => media.reddit_video,
   },
+  Preview: {
+    redditVideoPreview: preview => preview.reddit_video_preview,
+  },
   RedditVideo: {
+    fallbackUrl: video => video.fallback_url,
+  },
+  RedditVideoPreview: {
     fallbackUrl: video => video.fallback_url,
   },
   User: {

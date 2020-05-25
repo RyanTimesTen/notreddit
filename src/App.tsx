@@ -19,7 +19,7 @@ const Layout = styled.div`
   }
 `;
 
-const Text = styled.div<{ centered: boolean }>`
+const Text = styled.div<{ centered?: boolean }>`
   text-align: ${p => (p.centered ? 'center' : 'left')};
 `;
 
@@ -31,7 +31,10 @@ export const App: React.FC = () => {
       <AppHeader />
       <Layout>
         {user ? (
-          <Posts />
+          <>
+            <Text>r/best</Text>
+            <Posts />
+          </>
         ) : (
           <Text centered>
             log in to see posts

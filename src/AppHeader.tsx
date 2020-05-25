@@ -11,7 +11,7 @@ const Header = styled.header`
   justify-content: center;
   align-items: center;
 
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 `;
 
 const Content = styled.div`

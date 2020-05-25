@@ -106,7 +106,23 @@ export interface IPost {
   author: string;
   body: string;
   id: string;
-  images: { url: string }[];
+  preview?: {
+    images?: {
+      source?: {
+        url: string;
+      };
+      variants?: {
+        mp4?: {
+          source?: {
+            url: string;
+          };
+        };
+      };
+    }[];
+    redditVideoPreview?: {
+      fallbackUrl?: string;
+    };
+  };
   secureMedia?: { redditVideo?: { fallbackUrl?: string } };
   subreddit: string;
   title: string;
@@ -130,8 +146,14 @@ export const Post: React.FC<PostProps> = ({ post }) => (
           videoSrc={post.secureMedia?.redditVideo?.fallbackUrl}
           audioSrc={post.secureMedia?.redditVideo?.fallbackUrl?.replace(/DASH[\s\S]+/, 'audio')}
         />
-      ) : post.images ? (
-        <Img src={post.images[0].url} alt="" />
+      ) : post.preview?.redditVideoPreview ? (
+        <MediaPlayer videoSrc={post.preview.redditVideoPreview?.fallbackUrl} />
+      ) : post.preview?.images ? (
+        post.preview?.images?.[0].variants?.mp4 ? (
+          <MediaPlayer videoSrc={post.preview.images[0].variants.mp4.source?.url} />
+        ) : (
+          <Img src={post.preview.images[0].source?.url} alt="" />
+        )
       ) : (
         <BodyText>{post.body}</BodyText>
       )}

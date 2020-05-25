@@ -15,9 +15,22 @@ export const Posts: React.FC = () => {
           author
           body
           id
-          images {
-            url
-            width
+          preview {
+            images {
+              source {
+                url
+              }
+              variants {
+                mp4 {
+                  source {
+                    url
+                  }
+                }
+              }
+            }
+            redditVideoPreview {
+              fallbackUrl
+            }
           }
           secureMedia {
             redditVideo {
