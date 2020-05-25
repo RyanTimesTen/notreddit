@@ -30,6 +30,7 @@ const BodyText = styled.div`
 
 const Img = styled.img`
   max-width: 300px;
+  max-height: 300px;
   @media (min-width: 425px) {
     max-width: 523px;
   }
