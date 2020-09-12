@@ -8,7 +8,7 @@
     "apollo-server-lambda": "^2.9.15",
     "encoding": "^0.1.12",
     "graphql": "^14.5.8",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "qs": "^6.5.1"
   }
 }
